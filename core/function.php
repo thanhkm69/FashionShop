@@ -209,7 +209,7 @@ function insertAllXa($db)
     echo "<br>🎉 Đã lưu tất cả xã vào DB thành công.<br>";
 }
 
-function tinhPhiGHN($db, $idNguoiDung, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC)
+function tinhPhiGHN($db, $idND, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC)
 {
     $phiShip = 30000; // phí mặc định
     $ghiChu = "Phí mặc định";
