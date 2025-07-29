@@ -54,9 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $idHoaDon = $_POST["id"];
         $tongTienDonHang = 1000000;
         $result = tinhPhiGHN($db, $id, 1552, $tongTienDonHang, 2, $_POST["dc"]);
-        // echo "<pre>";
-        // var_dump($result);
-        // echo "</pre>";
 
         if (empty($result["thongBao"])) {
             $phiShipMoi = $result["phiShip"];
@@ -70,14 +67,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("location: donhang.php");
         exit;
     }
-    if(isset($_POST["mualai"])){
-         $idHoaDon = $_POST["id"];
-         $hdct = $db->getAll("SELECT * FROM chitiethoadon WHERE idHoaDon = ?", [$idHoaDon]);
-         foreach($hdct as $ct){
-            $db->execute("INSERT INTO giohang (idSize,idNguoiDung,gia,soLuong) VALUES (?,?,?,?)",[$ct["idSize"],$id,$ct["gia"],$ct["soLuong"]]);
+    if (isset($_POST["mualai"])) {
+        $idHoaDon = $_POST["id"];
+        $hdct = $db->getAll("SELECT * FROM chitiethoadon WHERE idHoaDon = ?", [$idHoaDon]);
+        foreach ($hdct as $ct) {
+            $db->execute("INSERT INTO giohang (idSize,idNguoiDung,gia,soLuong) VALUES (?,?,?,?)", [$ct["idSize"], $id, $ct["gia"], $ct["soLuong"]]);
             header("location: dathang.php");
             exit;
-         }
+        }
     }
 }
 
@@ -243,7 +240,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 </button>
                                             </form>
                                         <?php elseif ($trangThai === "Đã hủy"): ?>
-                                          <form action="" method="post">
+                                            <form action="" method="post">
                                                 <input type="hidden" name="id" value="<?= $don["id"] ?>">
                                                 <button type="submit" name="mualai" class="btn btn-outline-primary">
                                                     <i class="bi bi-cart-plus"></i> Mua lại đơn hàng

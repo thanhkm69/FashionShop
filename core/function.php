@@ -209,7 +209,8 @@ function insertAllXa($db)
     echo "<br>🎉 Đã lưu tất cả xã vào DB thành công.<br>";
 }
 
-function tinhPhiGHN($db, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC) {
+function tinhPhiGHN($db, $idNguoiDung, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC)
+{
     $phiShip = 30000; // phí mặc định
     $ghiChu = "Phí mặc định";
     $thongBao = "";
@@ -219,27 +220,32 @@ function tinhPhiGHN($db, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC) {
         return [
             "phiShip" => $phiShip,
             "ghiChu"  => $ghiChu,
-            "thongBao"=> "<div class='alert alert-info'>💬 Bạn chưa chọn địa chỉ giao hàng.</div>"
+            "thongBao" => "<div class='alert alert-info'>💬 Bạn chưa chọn địa chỉ giao hàng.</div>"
         ];
     }
-
+    // echo "<pre>";
+    // var_dump($idDC);
+    // echo "</pre>";
+    // exit;
     $dc = $db->getOne("SELECT * FROM diachi WHERE id = ?", [$idDC]);
+
     if (!$dc || empty($dc["idXa"])) {
         return [
             "phiShip" => $phiShip,
             "ghiChu"  => $ghiChu,
-            "thongBao"=> "<div class='alert alert-danger'>❌ Không tìm thấy địa chỉ giao hàng.</div>"
+            "thongBao" => "<div class='alert alert-danger'>❌ Không tìm thấy địa chỉ giao hàng.</div>"
         ];
     }
 
     $idXa = $dc["idXa"];
 
     // Lấy mã GHN từ DB
-    $xa = $db->getOne("
+    $xa = $db->getOne(
+        "
         SELECT b.maGHN AS wardCode, c.maGHN AS districtId 
         FROM xa b
         JOIN huyen c ON b.idHuyen = c.maGHN
-        WHERE b.maGHN = ?", 
+        WHERE b.maGHN = ?",
         [$idXa]
     );
 
@@ -247,7 +253,7 @@ function tinhPhiGHN($db, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC) {
         return [
             "phiShip" => $phiShip,
             "ghiChu"  => $ghiChu,
-            "thongBao"=> "<div class='alert alert-danger'>❌ Khu vực của bạn chưa được GHN hỗ trợ. Vui lòng chọn địa chỉ khác.</div>"
+            "thongBao" => "<div class='alert alert-danger'>❌ Khu vực của bạn chưa được GHN hỗ trợ. Vui lòng chọn địa chỉ khác.</div>"
         ];
     }
 
@@ -293,7 +299,6 @@ function tinhPhiGHN($db, $fromDistrict, $tongTienDonHang, $loaiGHN, $idDC) {
     return [
         "phiShip" => $phiShip,
         "ghiChu"  => $ghiChu,
-        "thongBao"=> $thongBao
+        "thongBao" => $thongBao
     ];
 }
-
