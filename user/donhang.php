@@ -9,6 +9,31 @@ if (!isset($_SESSION["nguoiDung"])) {
 }
 $dir = "../uploads/";
 $dirMenu = "../";
+$where = [];
+$bind = [];
+
+if (isset($_GET["trangThai"]) && $_GET["trangThai"] != "") {
+    $where[] = "a.trangThaiDH = ?";
+    $bind[] = test_input($_GET["trangThai"]);
+}
+
+$whereClause = "";
+if (!empty($where)) {
+    $whereClause = " AND " . implode(" AND ", $where);
+}
+
+$sql = "SELECT a.*, dc.id as idDC, dc.chiTiet, x.ten as tenXa, h.ten as tenHuyen, t.ten as tenTinh 
+    FROM hoadon a
+    JOIN diachi dc ON a.idDiaChi = dc.id 
+    JOIN xa x ON dc.idXa = x.maGHN 
+    JOIN huyen h ON x.idHuyen = h.maGHN 
+    JOIN tinh t ON h.idTinh = t.maGHN 
+    WHERE a.idNguoiDung = ? $whereClause
+    ORDER BY a.thoiGianMua DESC";
+
+$params = array_merge([$id], $bind);
+$hoaDonList = $db->getAll($sql, $params);
+
 
 $diaChi = $db->getAll("SELECT a.id,b.maGHN,b.ten as tenXa,c.ten as tenHuyen,d.ten as tenTinh,a.macDinh,a.chiTiet 
 FROM diachi a 
@@ -17,14 +42,6 @@ JOIN huyen c ON b.idHuyen = c.maGHN
 JOIN tinh d ON c.idTinh = d.maGHN 
 WHERE idNguoiDung = ?", [$id]);
 
-$hoaDonList = $db->getAll("SELECT a.*, dc.id as idDC,dc.chiTiet, x.ten as tenXa, h.ten as tenHuyen, t.ten as tenTinh 
-    FROM hoadon a
-    JOIN diachi dc ON a.idDiaChi = dc.id 
-    JOIN xa x ON dc.idXa = x.maGHN 
-    JOIN huyen h ON x.idHuyen = h.maGHN 
-    JOIN tinh t ON h.idTinh = t.maGHN 
-    WHERE a.idNguoiDung = ?
-    ORDER BY a.thoiGianMua DESC", [$id]);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["huydon"])) {
@@ -46,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Chuyển hướng
-        header("location: donhang.php");
+        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
         exit;
     }
 
@@ -64,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $db->execute("UPDATE hoadon SET phiShip = ? , tongTien = ?, idDiaChi = ? WHERE id = ?", [$phiShipMoi, $tongTien, $_POST["dc"], $idHoaDon]);
         }
         // Chuyển hướng
-        header("location: donhang.php");
+        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
         exit;
     }
     if (isset($_POST["mualai"])) {
@@ -72,9 +89,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hdct = $db->getAll("SELECT * FROM chitiethoadon WHERE idHoaDon = ?", [$idHoaDon]);
         foreach ($hdct as $ct) {
             $db->execute("INSERT INTO giohang (idSize,idNguoiDung,gia,soLuong) VALUES (?,?,?,?)", [$ct["idSize"], $id, $ct["gia"], $ct["soLuong"]]);
-            header("location: dathang.php");
+            header("location: dathang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
             exit;
         }
+    }
+
+    if (isset($_POST["hoanthanh"])) {
+        $idHoaDon = $_POST["id"];
+        $trangThai = "Hoàn thành";
+
+        // Cập nhật trạng thái đơn hàng thành "Hoàn thành"
+        $db->execute("UPDATE hoadon SET trangThaiDH = ? WHERE id = ?", [$trangThai, $idHoaDon]);
+
+        // (Tùy chọn) Có thể thực hiện các hành động khác nếu cần
+
+        // Chuyển hướng lại trang đơn hàng
+        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
+        exit;
     }
 }
 
@@ -88,6 +119,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .tab-filter {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+
+        .tab-filter .tab-item {
+            padding: 12px 20px;
+            display: inline-block;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .tab-filter .tab-item.active {
+            color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 100%;
+            background-color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item:hover {
+            color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item {
+            padding: 8px 16px;
+            display: inline-block;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-filter .tab-item.active {
+            color: #ee4d2d;
+            border-bottom: 2px solid #ee4d2d;
+        }
+
+        .tab-filter .tab-item:hover {
+            color: #ee4d2d;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column" style="min-height: 100vh;">
@@ -96,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="flex-grow-1 d-flex flex-column">
             <?php include '../admin/include/header.php' ?>
             <div class="container py-4">
-                <h4><i class="bi bi-heart-fill text-danger me-2"></i>Danh sách đơn hàng</h4>
+                <h4> <i class="bi bi-bag-check-fill text-danger me-2"></i>Danh sách đơn hàng</h4>
                 <p class="text-muted">Các đơn hàng của bạn</p>
                 <hr>
 
@@ -107,6 +197,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <?php $_SESSION["thongBao"] = ""; ?>
                 <?php endif; ?>
+                <form method="get">
+                    <div class="tab-filter d-flex">
+                        <?php
+                        $trangThaiList = [
+                            "" => "Tất cả",
+                            "Đang xác nhận" => "Đang xác nhận",
+                            "Đã xác nhận" => "Đã xác nhận",
+                            "Đang giao hàng" => "Đang giao hàng",
+                            "Giao hàng thành công" => "Giao hàng thành công",
+                            "Trả hàng" => "Trả hàng",
+                            "Hoàn thành" => "Hoàn thành",
+                            "Đã hủy" => "Đã hủy",
+                        ];
+
+                        $currentTT = $_GET["trangThai"] ?? "";
+                        foreach ($trangThaiList as $value => $label): ?>
+                            <?php
+                            if ($value == "") {
+                                $count = $db->getValue("SELECT COUNT(*) FROM hoadon WHERE idNguoiDung = ?", [$id]);
+                            } else {
+                                $count = $db->getValue("SELECT COUNT(*) FROM hoadon WHERE trangThaiDH LIKE ? AND idNguoiDung = ?", [$value, $id]);
+                            }
+                            ?>
+                            <button type="submit" name="trangThai" value="<?= $value ?>"
+                                class="tab-item <?= ($value === $currentTT) ? 'active' : '' ?>">
+                                <?= $label . " ($count)" ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                </form>
 
                 <?php if (!empty($hoaDonList)): ?>
                     <?php $stt = 1; ?>
@@ -228,13 +348,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <a href="tra_hang.php?id=<?= $don["id"] ?>" class="btn btn-outline-secondary">
                                                 <i class="bi bi-box-arrow-in-left"></i> Trả đơn hàng
                                             </a>
+                                            <!-- Nút mở modal -->
+                                            <button type="button" class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#cartOptionModal<?= $don['id'] ?>" title="Hoàn thành">
+                                                <i class="bi bi-bag-check"></i> Hoàn thành
+                                            </button>
+
+                                            <!-- Modal xác nhận hoàn thành -->
+                                            <div class="modal fade" id="cartOptionModal<?= $don["id"] ?>" tabindex="-1" aria-labelledby="cartOptionModalLabel<?= $don["id"] ?>" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                    <div class="modal-content">
+                                                        <form method="post" action="">
+                                                            <input type="hidden" name="id" value="<?= $don["id"] ?>">
+
+                                                            <!-- Modal Header -->
+                                                            <div class="modal-header border-bottom-0">
+                                                                <h5 class="modal-title">
+                                                                    <i class="bi bi-check-circle-fill text-success me-2"></i> Xác nhận hoàn thành đơn hàng
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                                            </div>
+
+                                                            <!-- Modal Body -->
+                                                            <div class="modal-body">
+                                                                <div class="alert alert-warning small d-flex align-items-center gap-2" role="alert">
+                                                                    <i class="bi bi-exclamation-triangle-fill fs-5 text-warning"></i>
+                                                                    <div>
+                                                                        Sau khi xác nhận <strong>Hoàn thành</strong>, bạn sẽ <u>không thể trả hàng</u> cho đơn này nữa.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Modal Footer -->
+                                                            <div class="modal-footer border-top-0 p-2">
+                                                                <div class="d-flex w-100 gap-2">
+                                                                    <button type="submit" name="hoanthanh" class="btn btn-dark w-50">
+                                                                        <i class="bi bi-check-circle me-1"></i> Xác nhận hoàn thành
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">
+                                                                        <i class="bi bi-x-circle me-1"></i> Hủy
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
 
                                         <?php elseif ($trangThai === "Hoàn thành"): ?>
                                             <form action="" method="post">
                                                 <input type="hidden" name="id" value="<?= $don["id"] ?>">
-                                                <button type="submit" name="danhgia" class="btn btn-outline-success me-2">
+                                                <a href="danhgia.php?id=<?= $don["id"] ?>" class="btn btn-outline-success me-2">
                                                     <i class="bi bi-star-fill"></i> Đánh giá sản phẩm
-                                                </button>
+                                                </a>
                                                 <button type="submit" name="mualai" class="btn btn-outline-primary">
                                                     <i class="bi bi-cart-plus"></i> Mua lại đơn hàng
                                                 </button>
@@ -263,9 +429,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php else: ?>
                     <div class="alert alert-info text-center">Bạn chưa có đơn hàng nào.</div>
                 <?php endif; ?>
-
-
-
             </div>
             <?php include '../admin/include/footer.php' ?>
         </div>

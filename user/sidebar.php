@@ -93,6 +93,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link text-dark <?php echo ($currentPage == 'donhang.php') ? 'active' : ''; ?>" href="./donhang.php">
+                <i class="bi bi-bag-check-fill me-2"></i> Đơn hàng
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'voucher.php') ? 'active' : ''; ?>" href="./voucher.php">
                 <i class="bi bi-ticket-detailed-fill me-2"></i> Voucher
             </a>
@@ -100,11 +105,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'yeuthich.php') ? 'active' : ''; ?>" href="./yeuthich.php">
                 <i class="bi bi-heart-fill me-2"></i> Yêu thích
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark <?php echo ($currentPage == 'donhang.php') ? 'active' : ''; ?>" href="./donhang.php">
-                <i class="bi bi-bag-check-fill me-2"></i> Đơn hàng
             </a>
         </li>
         <li class="nav-item">

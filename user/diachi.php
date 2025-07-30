@@ -141,7 +141,7 @@ $dsDiaChi = $db->getAll("
             <main class="p-4 flex-grow-1">
                 <div class="container my-4">
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="bi bi-geo-alt-fill fs-4"></i>
+                        <i class="bi bi-geo-alt-fill fs-4 text-danger"></i>
                         <span class="fs-5 fw-semibold align-text-bottom">Sổ địa chỉ</span>
                     </div>
 
