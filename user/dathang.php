@@ -73,7 +73,7 @@ WHERE a.idNguoiDung = ?", [$idNguoiDung]);
 if (isset($_GET["idSize"], $_GET["soLuong"])) {
     $tong = $cart[0]["gia"] * $cart[0]["soLuong"];
 } else {
-    $tong = $db->getValue("SELECT SUM(gia * soLuong) FROM gioHang WHERE idNguoiDung = ?", [$idNguoiDung]) ?? 0;
+    $tong = $db->getValue("SELECT SUM(gia * soLuong) FROM giohang WHERE idNguoiDung = ?", [$idNguoiDung]) ?? 0;
 }
 
 // Phí ship mặc định
