@@ -27,10 +27,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $trangThaiDH = $_POST["trangThaiDH"];
         $db->execute("UPDATE hoadon SET trangThaiDH = ? WHERE id = ?", [$trangThaiDH, $id]);
         $_SESSION["thongBao"] = "Cập nhập trang thái đơn hàng thành công";
-        header("location: hoadon.php");
+        header("location: hoadon.php?trangThai={$_GET["trangThai"]}");
         exit;
     }
 }
+
+if (isset($_GET["trangThai"]) && $_GET["trangThai"] != "") {
+    $where[] = "trangThaiDH = ?";
+    $bind[] = test_input($_GET["trangThai"]);
+};
+
 
 // Xử lý tìm kiếm
 if (isset($_GET["search"])) {
@@ -39,13 +45,6 @@ if (isset($_GET["search"])) {
         $where[] = "ma LIKE ?";
         $bind[] = "%" . test_input($_GET["ma"]) . "%";
     }
-
-    // Lọc theo trạng thái đơn hàng
-    if (isset($_GET["trangThaiDH"]) && $_GET["trangThaiDH"] !== "") {
-        $where[] = "trangThaiDH = ?";
-        $bind[] = test_input($_GET["trangThaiDH"]);
-    }
-
     // Lọc theo phương thức thanh toán
     if (isset($_GET["phuongThucTT"]) && $_GET["phuongThucTT"] !== "") {
         $where[] = "phuongThucTT = ?";
@@ -59,6 +58,16 @@ if (isset($_GET["search"])) {
     }
 }
 
+$orderby = "ORDER BY thoiGianMua DESC";
+
+if (isset($_GET["orderbyGia"])) {
+    $order = $_GET["orderbyGia"];
+    if ($order) {
+        $orderby = "ORDER BY tongTien DESC";
+    } else {
+        $orderby = "ORDER BY tongTien ASC";
+    }
+}
 
 if (!empty($where)) {
     $whereClase = " WHERE " . implode(" AND ", $where);
@@ -69,8 +78,21 @@ $totalRows = $db->getValue("SELECT COUNT(*) FROM hoadon $whereClase", $bind);
 
 $totalPages = ceil($totalRows / $limit);
 
-$hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $offset", $bind);
+$hoadon = $db->getAll("SELECT * FROM hoadon $whereClase $orderby LIMIT $limit OFFSET $offset", $bind);
 
+function getTrangThaiInfo($trangThai)
+{
+    $data = [
+        "Đang xác nhận" => ['color' => '#0d6efd', 'icon' => 'bi-hourglass-split'],
+        "Đã xác nhận" => ['color' => '#6610f2', 'icon' => 'bi-shield-check'],
+        "Đang giao hàng" => ['color' => '#198754', 'icon' => 'bi-truck'],
+        "Giao hàng thành công" => ['color' => '#20c997', 'icon' => 'bi-bag-check'],
+        "Trả hàng" => ['color' => '#ffc107', 'icon' => 'bi-arrow-counterclockwise'],
+        "Hoàn thành" => ['color' => '#fd7e14', 'icon' => 'bi-check2-circle'],
+        "Đã hủy" => ['color' => '#dc3545', 'icon' => 'bi-x-circle'],
+    ];
+    return $data[$trangThai] ?? ['color' => '#6c757d', 'icon' => 'bi-question-circle'];
+}
 
 ?>
 
@@ -83,6 +105,65 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .tab-filter {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+
+        .tab-filter .tab-item {
+            padding: 12px 20px;
+            display: inline-block;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .tab-filter .tab-item.active {
+            color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 100%;
+            background-color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item:hover {
+            color: #ee4d2d;
+        }
+
+        .tab-filter .tab-item {
+            padding: 8px 16px;
+            display: inline-block;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-filter .tab-item.active {
+            color: #ee4d2d;
+            border-bottom: 2px solid #ee4d2d;
+        }
+
+        .tab-filter .tab-item:hover {
+            color: #ee4d2d;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column" style="min-height: 100vh;">
@@ -105,55 +186,67 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
                     <?php $_SESSION["thongBao"] = ""; ?>
                 <?php endif; ?>
 
+                <!-- Dòng lọc trạng thái -->
+                <div class="tab-filter mb-4">
+                    <form method="get" class="d-flex">
+                        <?php
+                        $trangThaiList = [
+                            "" => "Tất cả",
+                            "Đang xác nhận" => "Đang xác nhận",
+                            "Đã xác nhận" => "Đã xác nhận",
+                            "Đang giao hàng" => "Đang giao hàng",
+                            "Giao hàng thành công" => "Giao hàng thành công",
+                            "Trả hàng" => "Trả hàng",
+                            "Hoàn thành" => "Hoàn thành",
+                            "Đã hủy" => "Đã hủy",
+                        ];
+
+                        $currentTT = $_GET["trangThai"] ?? "";
+                        foreach ($trangThaiList as $value => $label): ?>
+                            <?php
+                            if ($value == "") {
+                                $count = $db->getValue("SELECT COUNT(*) FROM hoadon");
+                            } else {
+                                $count = $db->getValue("SELECT COUNT(*) FROM hoadon WHERE trangThaiDH LIKE ?", [$value]);
+                            }
+                            ?>
+                            <button type="submit" name="trangThai" value="<?= $value ?>"
+                                class="tab-item flex-grow-1 <?= ($value === $currentTT) ? 'active' : '' ?>">
+                                <?= $label . " ($count)" ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </form>
+                </div>
+
                 <!-- Search Form -->
                 <form method="get" class="row g-3 mb-4 align-items-end">
-
-                    <div class="col-md-2">
+                    <div class="col-md">
                         <input type="text" name="ma" class="form-control" placeholder="Nhập mã hóa đơn" value="<?= $_GET['ma'] ?? '' ?>">
                     </div>
 
-
-                    <div class="col-md-2">
-                        <select name="trangThaiDH" class="form-select">
-                            <option value="">Trạng thái đơn</option>
-                            <option value="Đang xác nhận" <?= ($_GET['trangThaiDH'] ?? '') == "Đang xác nhận" ? 'selected' : '' ?>>Đang xác nhận</option>
-                            <option value="Đã xác nhận" <?= ($_GET['trangThaiDH'] ?? '') == "Đã xác nhận" ? 'selected' : '' ?>>Đã xác nhận</option>
-                            <option value="Đang giao hàng" <?= ($_GET['trangThaiDH'] ?? '') == "Đang giao hàng" ? 'selected' : '' ?>>Đang giao hàng</option>
-                            <option value="Giao hàng thành công" <?= ($_GET['trangThaiDH'] ?? '') == "Giao hàng thành công" ? 'selected' : '' ?>>Giao hàng thành công</option>
-                            <option value="Hoàn thành" <?= ($_GET['trangThaiDH'] ?? '') == "Hoàn thành" ? 'selected' : '' ?>>Hoàn thành</option>
-                            <option value="Trả hàng" <?= ($_GET['trangThaiDH'] ?? '') == "Trả hàng" ? 'selected' : '' ?>>Trả hàng</option>
-                            <option value="Đã hủy" <?= ($_GET['trangThaiDH'] ?? '') == "Đã hủy" ? 'selected' : '' ?>>Đã hủy</option>
-                        </select>
-
-                    </div>
-
-                    <div class="col-md-2">
+                    <div class="col-md">
                         <select name="phuongThucTT" class="form-select">
                             <option value="">Phương thức</option>
                             <option value="cod" <?= ($_GET['phuongThucTT'] ?? '') == "cod" ? 'selected' : '' ?>>COD</option>
                             <option value="vnpay" <?= ($_GET['phuongThucTT'] ?? '') == "vnpay" ? 'selected' : '' ?>>VN PAY</option>
                         </select>
-
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md">
                         <select name="trangThaiTT" class="form-select">
                             <option value="">Thanh toán</option>
                             <option value="1" <?= ($_GET['trangThaiTT'] ?? '') == "1" ? 'selected' : '' ?>>✅ Đã thanh toán</option>
                             <option value="0" <?= ($_GET['trangThaiTT'] ?? '') === "0" ? 'selected' : '' ?>>❌ Chưa thanh toán</option>
                         </select>
-
                     </div>
 
-                    <!-- Search button -->
-                    <div class="col-md-2">
+                    <div class="col-md">
                         <button type="submit" name="search" class="btn btn-primary w-100">
                             <i class="bi bi-search"></i> Tìm
                         </button>
                     </div>
 
-                    <!-- Reset button -->
-                    <div class="col-md-2">
+                    <div class="col-md">
                         <a href="hoadon.php" class="btn btn-outline-secondary w-100">
                             <i class="bi bi-arrow-repeat"></i> Xóa
                         </a>
@@ -161,7 +254,12 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
                 </form>
 
 
+
                 <form method="GET" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <input type="hidden" name="ma" value="<?= htmlspecialchars($_GET["ma"] ?? '') ?>">
+                    <input type="hidden" name="phuongThucTT" value="<?= htmlspecialchars($_GET["phuongThucTT"] ?? '') ?>">
+                    <input type="hidden" name="trangThaiTT" value="<?= htmlspecialchars($_GET["trangThaiTT"] ?? '') ?>">
+                    <input type="hidden" name="trangThai" value="<?= htmlspecialchars($_GET["trangThai"] ?? '') ?>">
                     <!-- Bên trái: Hiển thị số bản ghi -->
                     <div class="d-flex align-items-center">
                         <label for="limit" class="form-label mb-0 me-2">
@@ -178,7 +276,7 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
 
                     <!-- Bên phải: Sắp xếp -->
                     <div class="d-flex align-items-center">
-                        <label for="orderby" class="form-label mb-0 me-2">
+                        <label class="form-label mb-0 me-2">
                             <i class="bi bi-sort-alpha-down me-1"></i> Sắp xếp:
                         </label>
                         <select name="orderbyGia" id="orderbyGia" onchange="this.form.submit()" class="form-select w-auto">
@@ -199,7 +297,6 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
                                 <tr>
                                     <th>Mã</th>
                                     <th>Người đặt</th>
-                                    <th>Trạng thái đơn hàng</th>
                                     <th>Phương thức thanh toán</th>
                                     <th>Trạng thái thanh toán</th>
                                     <th>Thời gian đặt hàng</th>
@@ -212,20 +309,6 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
                                     <tr>
                                         <td><?= htmlspecialchars($hd["ma"]) ?></td>
                                         <th><?= $hd["ten"] ?></th>
-                                        <td>
-                                            <form action="" method="post">
-                                                <input type="hidden" name="id" value="<?= $hd["id"] ?>">
-                                                <select name="trangThaiDH" id="trangThaiDH" class="form-select" onchange="this.form.submit()">
-                                                    <option <?= $hd["trangThaiDH"] == "Đang xác nhận" ? "selected" : "" ?> value="Đang xác nhận">Đang xác nhận</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Đã xác nhận" ? "selected" : "" ?> value="Đã xác nhận">Đã xác nhận</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Đang giao hàng" ? "selected" : "" ?> value="Đang giao hàng">Đang giao hàng</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Giao hàng thành công" ? "selected" : "" ?> value="Giao hàng thành công">Giao hàng thành công</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Trả hàng" ? "selected" : "" ?> value="Trả hàng">Trả hàng</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Hoàn thành" ? "selected" : "" ?> value="Hoàn thành">Hoàn thành</option>
-                                                    <option <?= $hd["trangThaiDH"] == "Đã hủy" ? "selected" : "" ?> value="Đã hủy">Đã hủy</option>
-                                                </select>
-                                            </form>
-                                        </td>
                                         <!-- Phương thức thanh toán -->
                                         <td>
                                             <?php if ($hd["phuongThucTT"] == "cod"): ?>
@@ -250,10 +333,42 @@ $hoadon = $db->getAll("SELECT * FROM hoadon $whereClase LIMIT $limit OFFSET $off
                                         </td>
                                         <th><?= number_format($hd["tongTien"]) ?>đ</th>
                                         <td class="text-nowrap">
-                                            <a href="chitiet.php?id=<?= $vou["id"] ?>" class="btn btn-primary btn-sm">
+                                            <!-- Nút xem chi tiết -->
+                                            <a href="chitiet.php?id=<?= $hd["id"] ?>" class="btn btn-primary btn-sm mb-1">
                                                 <i class="bi bi-eye-fill"></i>
                                                 <span>Chi tiết</span>
                                             </a>
+                                            <?php if (!(!isset($_GET["trangThai"]) || $_GET["trangThai"] == "" || $_GET["trangThai"] == "Tất cả")): ?>
+                                                <!-- Nút hành động tùy theo trạng thái đơn hàng -->
+                                                <?php if ($hd["trangThaiDH"] === "Đang xác nhận"): ?>
+                                                    <form method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="<?= $hd["id"] ?>">
+                                                        <input type="hidden" name="trangThaiDH" value="Đã xác nhận">
+                                                        <button type="submit" class="btn btn-sm mb-1" style="background-color: #6610f2; color: #fff;">
+                                                            <i class="bi bi-shield-check"></i>
+                                                            Xác nhận
+                                                        </button>
+                                                    </form>
+                                                <?php elseif ($hd["trangThaiDH"] === "Đã xác nhận"): ?>
+                                                    <form method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="<?= $hd["id"] ?>">
+                                                        <input type="hidden" name="trangThaiDH" value="Đang giao hàng">
+                                                        <button type="submit" class="btn btn-sm mb-1" style="background-color: #198754; color: #fff;">
+                                                            <i class="bi bi-truck"></i>
+                                                            Giao hàng
+                                                        </button>
+                                                    </form>
+                                                <?php elseif ($hd["trangThaiDH"] === "Đang giao hàng"): ?>
+                                                    <form method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="<?= $hd["id"] ?>">
+                                                        <input type="hidden" name="trangThaiDH" value="Giao hàng thành công">
+                                                        <button type="submit" class="btn btn-sm mb-1" style="background-color: #20c997; color: #fff;">
+                                                            <i class="bi bi-bag-check"></i>
+                                                            Hoàn tất
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

@@ -128,7 +128,7 @@ $dir = "../../uploads/";
                     <?php $_SESSION["thongBao"] = ""; ?>
                 <?php endif; ?>
 
-                <form method="get" class="d-flex flex-nowrap align-items-end gap-2 mb-3 w-100">
+                <form method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3 w-100">
                     <input type="hidden" name="search" value="1">
 
                     <input class="form-control" style="flex: 1;" type="number" name="id" placeholder="ID" value="<?= $_GET["id"] ?? '' ?>">
