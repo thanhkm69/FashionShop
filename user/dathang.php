@@ -319,6 +319,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["dathang"])) {
   <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
     <thead>
       <tr>
+        <th>Hình</th>
         <th>Sản phẩm</th>
         <th>Màu</th>
         <th>Size</th>
@@ -331,6 +332,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["dathang"])) {
         foreach ($chiTietHD as $item) {
             $body .= '
       <tr>
+        <td style="text-align:center;">
+            <img src="' . 'http://localhost/FashionShop/uploads/' . htmlspecialchars($item["hinh"]) . htmlspecialchars($item["hinh"]) . '" alt="ảnh" width="60" height="60" style="object-fit:cover;">
+        </td>
         <td>' . $item["tenSanPham"] . '</td>
         <td>' . $item["mau"] . '</td>
         <td>' . $item["size"] . '</td>
