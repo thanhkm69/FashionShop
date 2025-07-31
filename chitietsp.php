@@ -8,8 +8,10 @@ $id = $_GET["id"];
 $sp = $db->getOne("SELECT a.*, b.ten as tenDM FROM sanpham a JOIN danhmuc b ON a.idDanhMuc = b.id WHERE a.id = ?", [$id]);
 $phanTram  = $sp["giaKhuyenMai"] / $sp["giaGoc"] * 100;
 
+$idNguoiDung = $_SESSION["nguoiDung"]["id"] ??"";
+
 //Lấy bình luận sản phẩm
-$bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ?", [$id]);
+$bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,d.trangThai,d.idNguoiDung,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ? AND (d.trangThai = 1 OR d.idNguoiDung = ?)", [$id,$idNguoiDung]);
 
 //Lấy mô tả size
 
