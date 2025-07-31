@@ -36,8 +36,21 @@ if (isset($_GET["trangThai"]) && $_GET["trangThai"] != "") {
     $bind[] = test_input($_GET["trangThai"]);
 };
 
+if (isset($_GET["sao"]) && $_GET["sao"] != "") {
+    $where[] = "d.sao = ?";
+    $bind[] = test_input($_GET["sao"]);
+};
+
 
 $orderby = "ORDER BY d.ngayTao DESC";
+if (isset($_GET["orderby"])) {
+    $order = $_GET["orderby"];
+    if ($order) {
+        $orderby = "ORDER BY d.sao DESC";
+    } else {
+        $orderby = "ORDER BY d.sao ASC";
+    }
+}
 
 
 if (!empty($where)) {
@@ -171,6 +184,51 @@ $danhGia = $db->getAll("SELECT a.*,b.mau,b.hinh as hinhMau,c.size,d.id as idDG,d
                     </form>
                 </div>
 
+                <form method="GET" class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <!-- Trạng thái ẩn -->
+                    <input type="hidden" name="trangThai" value="<?= htmlspecialchars($_GET["trangThai"] ?? '') ?>">
+
+                    <!-- Bên trái: Hiển thị số bản ghi -->
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <label for="limit" class="form-label mb-0 me-2">
+                            <i class="bi bi-list-ol me-1"></i> Hiển thị:
+                        </label>
+                        <select name="limit" id="limit" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                            <option value="5" <?= (isset($_GET["limit"]) && $_GET["limit"] == 5) ? "selected" : "" ?>>5</option>
+                            <option value="10" <?= (isset($_GET["limit"]) && $_GET["limit"] == 10) ? "selected" : "" ?>>10</option>
+                            <option value="20" <?= (isset($_GET["limit"]) && $_GET["limit"] == 20) ? "selected" : "" ?>>20</option>
+                            <option value="50" <?= (isset($_GET["limit"]) && $_GET["limit"] == 50) ? "selected" : "" ?>>50</option>
+                        </select>
+                        <span class="ms-1">bản ghi/trang</span>
+                    </div>
+
+                    <!-- Bộ lọc sao -->
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <label for="sao" class="form-label mb-0 me-2">
+                            <i class="bi bi-star-fill text-warning me-1"></i> Số sao:
+                        </label>
+                        <select name="sao" id="sao" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                            <option value="">Tất cả</option>
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <option value="<?= $i ?>" <?= (isset($_GET["sao"]) && $_GET["sao"] == $i) ? "selected" : "" ?>>
+                                    <?= $i ?> <?= str_repeat("★", $i) ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+
+                    <!-- Sắp xếp -->
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <label for="orderby" class="form-label mb-0 me-2">
+                            <i class="bi bi-sort-down-alt me-1"></i> Sắp xếp:
+                        </label>
+                        <select name="orderby" id="orderby" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                            <option value="">Theo sao</option>
+                            <option value="0" <?= (isset($_GET["orderby"]) && $_GET["orderby"] === "0") ? "selected" : "" ?>>⭐ Thấp → Cao</option>
+                            <option value="1" <?= (isset($_GET["orderby"]) && $_GET["orderby"] === "1") ? "selected" : "" ?>>⭐ Cao → Thấp</option>
+                        </select>
+                    </div>
+                </form>
 
                 <?php if (empty($danhGia)): ?>
                     <div class="alert alert-warning">Không có đánh giá nào.</div>
@@ -228,20 +286,23 @@ $danhGia = $db->getAll("SELECT a.*,b.mau,b.hinh as hinhMau,c.size,d.id as idDG,d
                                         <!-- Trạng thái + chọn -->
                                         <td>
                                             <div class="d-flex flex-column align-items-center gap-2">
-                                                <span class="badge rounded-pill <?= $dg["trangThai"] == 1 ? 'bg-success' : 'bg-danger' ?>">
-                                                    <i class="bi <?= $dg["trangThai"] == 1 ? 'bi-check-circle-fill' : 'bi-x-circle-fill' ?>"></i>
+                                                <!-- Badge trạng thái -->
+                                                <span class="badge px-3 py-2 rounded-pill fw-semibold <?= $dg["trangThai"] == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' ?>">
+                                                    <i class="bi <?= $dg["trangThai"] == 1 ? 'bi-eye-fill' : 'bi-eye-slash-fill' ?> me-1"></i>
                                                     <?= $dg["trangThai"] == 1 ? 'Hiển' : 'Ẩn' ?>
                                                 </span>
 
-                                                <form method="post" class="d-flex align-items-center gap-2">
+                                                <!-- Form đổi trạng thái -->
+                                                <form method="post" class="d-flex align-items-center gap-1">
                                                     <input type="hidden" name="id" value="<?= $dg["idDG"] ?>">
-                                                    <select onchange="this.form.submit()" name="trangThai" class="form-select form-select-sm w-auto">
+                                                    <select name="trangThai" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
                                                         <option value="1" <?= $dg["trangThai"] == 1 ? "selected" : "" ?>>Hiển</option>
                                                         <option value="0" <?= $dg["trangThai"] == 0 ? "selected" : "" ?>>Ẩn</option>
                                                     </select>
                                                 </form>
                                             </div>
                                         </td>
+
                                     </tr>
                                 <?php endforeach ?>
                             </tbody>
