@@ -8,10 +8,10 @@ $id = $_GET["id"];
 $sp = $db->getOne("SELECT a.*, b.ten as tenDM FROM sanpham a JOIN danhmuc b ON a.idDanhMuc = b.id WHERE a.id = ?", [$id]);
 $phanTram  = $sp["giaKhuyenMai"] / $sp["giaGoc"] * 100;
 
-$idNguoiDung = $_SESSION["nguoiDung"]["id"] ??"";
+$idNguoiDung = $_SESSION["nguoiDung"]["id"] ?? "";
 
 //Lấy bình luận sản phẩm
-$bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,d.trangThai,d.idNguoiDung,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ? AND (d.trangThai = 1 OR d.idNguoiDung = ?)", [$id,$idNguoiDung]);
+$bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,d.trangThai,d.idNguoiDung,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ? AND (d.trangThai = 1 OR d.idNguoiDung = ?)", [$id, $idNguoiDung]);
 
 //Lấy mô tả size
 
@@ -260,6 +260,29 @@ function timeAgo($datetime)
         .transition-slider {
             transition: transform 0.4s ease-in-out;
         }
+
+        /* Mô tả chi tiết */
+        #huongDanSize .review-item p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        /* Bảng mô tả size */
+        #huongDanSize table th,
+        #huongDanSize table td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        #huongDanSize table th {
+            background-color: #f1f9ff;
+            color: #0d6efd;
+        }
+
+        #huongDanSize table td {
+            background-color: #fff;
+        }
     </style>
 
 </head>
@@ -277,9 +300,14 @@ function timeAgo($datetime)
         <?php endif; ?>
 
         <!-- Chi tiết sản phẩm -->
-        <section class="product-detail-card row g-5 mb-5">
+        <section class="product-detail-card row mb-5">
+            <h5 class="mb-3">
+                <i class="bi bi-box2-heart me-2 text-danger"></i>Chi tiết sản phẩm và tùy chọn mua hàng
+                <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
+            </h5>
+
             <?php if ($sp["trangThai"] == 0): ?>
-                <p>Sản phẩm hiện đang ẩn</p>
+                <p class="text-danger fw-bold">Sản phẩm hiện đang ẩn</p>
             <?php else: ?>
                 <!-- Hình ảnh sản phẩm -->
                 <div class="col-lg-5 text-center">
@@ -303,7 +331,6 @@ function timeAgo($datetime)
 
                     </div>
                 </div>
-
                 <!-- Thông tin -->
                 <div class="col-lg-7">
                     <div class="row mb-2">
@@ -435,10 +462,10 @@ function timeAgo($datetime)
 
         <!-- Mô tả chi tiết -->
         <section id="huongDanSize" class="review-list mb-5">
-            <h4 class="mb-3">
+            <h5 class="mb-3">
                 <i class="bi bi-file-text me-1"></i> Mô tả chi tiết
                 <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
-            </h4>
+            </h5>
 
             <!-- Nội dung mô tả -->
             <div class="review-item mb-4">
@@ -471,10 +498,11 @@ function timeAgo($datetime)
 
         <!-- Đánh giá -->
         <section class="review-list mb-5">
-            <h4 class="mb-3">
-                Đánh giá của khách hàng
+            <h5 class="mb-3">
+                <i class="bi bi-star-fill me-2 text-warning"></i> Đánh giá của khách hàng
                 <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
-            </h4>
+            </h5>
+
             <?php foreach ($bl as $b) { ?>
                 <div class="review-item d-flex mb-4">
                     <!-- Avatar -->
@@ -520,7 +548,10 @@ function timeAgo($datetime)
 
         <!-- Sản phẩm liên quan -->
         <section class="product-relatives mb-4">
-            <h4 class="mb-3">Sản phẩm liên quan</h4>
+            <h5 class="mb-3">
+                <i class="bi bi-box-seam me-2 text-primary"></i> Sản phẩm liên quan
+            </h5>
+
             <div class="position-relative">
                 <!-- Nút trái -->
                 <button class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1" onclick="slideLeft()">

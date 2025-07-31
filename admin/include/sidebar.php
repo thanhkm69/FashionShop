@@ -117,7 +117,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <i class="bi bi-chat-left-dots-fill me-2"></i> Đánh giá
             </a>
         </li>
-
+        <li class="nav-item">
+            <a class="nav-link text-dark <?= ($currentPage == 'lienhe.php') ? 'active' : ''; ?>" href="../lienhe/lienhe.php">
+                <i class="bi bi-envelope-at-fill me-2"></i> Liên hệ
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'thongke.php') ? 'active' : ''; ?>" href="thongke.php">
                 <i class="bi bi-bar-chart-line-fill me-2"></i> Thống kê
