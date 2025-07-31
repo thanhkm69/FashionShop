@@ -8,6 +8,9 @@ $id = $_GET["id"];
 $sp = $db->getOne("SELECT a.*, b.ten as tenDM FROM sanpham a JOIN danhmuc b ON a.idDanhMuc = b.id WHERE a.id = ?", [$id]);
 $phanTram  = $sp["giaKhuyenMai"] / $sp["giaGoc"] * 100;
 
+//Lấy bình luận sản phẩm
+$bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ?", [$id]);
+
 //Lấy mô tả size
 
 $moTaSize = $db->getAll("SELECT c.size,c.moTaSize FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau WHERE a.id = ? GROUP BY c.size", [$id]);
@@ -98,6 +101,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("location: chitietsp.php?id=$id");
             exit();
         }
+    }
+}
+
+function timeAgo($datetime)
+{
+    $now = new DateTime();
+    $past = new DateTime($datetime);
+    $diff = $now->diff($past);
+
+    $days = (int)$diff->days;
+
+    if ($diff->y > 0) {
+        return $diff->y . ' năm trước';
+    } elseif ($diff->m > 0) {
+        return $diff->m . ' tháng trước';
+    } elseif ($days >= 7) {
+        $weeks = floor($days / 7);
+        return $weeks . ' tuần trước';
+    } elseif ($diff->d > 0) {
+        return $diff->d . ' ngày trước';
+    } elseif ($diff->h > 0) {
+        return $diff->h . ' giờ trước';
+    } elseif ($diff->i > 0) {
+        return $diff->i . ' phút trước';
+    } else {
+        return 'Vừa xong';
     }
 }
 
@@ -444,40 +473,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 Đánh giá của khách hàng
                 <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
             </h4>
-            <!-- Mỗi đánh giá gồm: avatar, tên, sao, ngày, bình luận -->
-            <div class="review-item d-flex align-items-start" data-rating="5">
-                <img src="https://randomuser.me/api/portraits/women/65.jpg" class="review-avatar" alt="Alice Nguyen" />
-                <div>
-                    <div>
-                        <span class="review-user">Alice Nguyen</span>
-                        <span class="review-rating" data-stars="5"></span>
-                        <span class="review-date">· 2 ngày trước</span>
+            <?php foreach ($bl as $b) { ?>
+                <div class="review-item d-flex mb-4">
+                    <!-- Avatar -->
+                    <div class="flex-shrink-0 me-3">
+                        <img src="<?= $dir . $b['hinh'] ?>" class="rounded-circle" alt="Avatar người dùng" width="60" height="60" style="object-fit: cover;">
                     </div>
-                    <div class="review-comment">iPhone 15 Pro thật tuyệt vời. Chất lượng camera đỉnh cao, pin dùng cả ngày!</div>
-                </div>
-            </div>
-            <div class="review-item d-flex align-items-start" data-rating="4">
-                <img src="https://randomuser.me/api/portraits/men/36.jpg" class="review-avatar" alt="Trung Pham" />
-                <div>
-                    <div>
-                        <span class="review-user">Trung Pham</span>
-                        <span class="review-rating" data-stars="4"></span>
-                        <span class="review-date">· 1 tuần trước</span>
+
+                    <!-- Nội dung -->
+                    <div class="flex-grow-1">
+                        <!-- Dòng đầu: tên + sao + ngày -->
+                        <div class="d-flex align-items-center justify-content-between flex-wrap">
+                            <div class="fw-bold"><?= htmlspecialchars($b["tenND"]) ?></div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="review-rating text-warning">
+                                    <?php
+                                    $sao = (int)$b["sao"];
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        echo $i <= $sao
+                                            ? '<i class="bi bi-star-fill"></i>'
+                                            : '<i class="bi bi-star"></i>';
+                                    }
+                                    ?>
+                                </span>
+                                <span class="review-date text-muted small"><?= timeAgo($b["ngayTao"]) ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Dòng thứ hai: thông tin sản phẩm -->
+                        <div class="review-product-info small text-secondary mt-1 mb-2">
+                            Sản phẩm: <strong><?= htmlspecialchars($b["ten"]) ?></strong> |
+                            Màu: <strong><?= htmlspecialchars($b["mau"]) ?></strong> |
+                            Size: <strong><?= htmlspecialchars($b["size"]) ?></strong>
+                        </div>
+
+                        <!-- Nội dung bình luận -->
+                        <div class="review-comment"><?= nl2br(htmlspecialchars($b["noiDung"])) ?></div>
                     </div>
-                    <div class="review-comment">Nhanh, đẹp, nhưng giá hơi cao. Dù sao vẫn rất thích!</div>
                 </div>
-            </div>
-            <div class="review-item d-flex align-items-start" data-rating="5">
-                <img src="https://randomuser.me/api/portraits/women/8.jpg" class="review-avatar" alt="Jane Doe" />
-                <div>
-                    <div>
-                        <span class="review-user">Jane Doe</span>
-                        <span class="review-rating" data-stars="5"></span>
-                        <span class="review-date">· 3 tuần trước</span>
-                    </div>
-                    <div class="review-comment">Chiếc iPhone tốt nhất tôi từng dùng. Rất đáng mua!</div>
-                </div>
-            </div>
+            <?php } ?>
+
+
         </section>
 
         <!-- Sản phẩm liên quan -->

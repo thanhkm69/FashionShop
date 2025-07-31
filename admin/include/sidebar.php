@@ -84,7 +84,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'dashboard.php') ? 'active' : ''; ?>" href="../dashboard/dashboard.php">
-               <i class="bi bi-speedometer2 me-2 text-dark"></i> Dashboard
+                <i class="bi bi-speedometer2 me-2 text-dark"></i> Dashboard
             </a>
         </li>
         <li class="nav-item">
@@ -99,12 +99,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'sanpham.php') ? 'active' : ''; ?>" href="../sanpham/sanpham.php">
-               <i class="bi bi-box-seam me-2 text-dark"></i> Sản phẩm
+                <i class="bi bi-box-seam me-2 text-dark"></i> Sản phẩm
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'voucher.php') ? 'active' : ''; ?>" href="../voucher/voucher.php">
-              <i class="bi bi-ticket-detailed-fill me-2"></i> Mã voucher
+                <i class="bi bi-ticket-detailed-fill me-2"></i> Mã voucher
             </a>
         </li>
         <li class="nav-item">
@@ -112,6 +112,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <i class="bi bi-cart-fill me-2"></i> Đơn hàng
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark <?php echo ($currentPage == 'binhluan.php') ? 'active' : ''; ?>" href="../binhluan/binhluan.php">
+                <i class="bi bi-chat-left-dots-fill me-2"></i> Đánh giá
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'thongke.php') ? 'active' : ''; ?>" href="thongke.php">
                 <i class="bi bi-bar-chart-line-fill me-2"></i> Thống kê
