@@ -393,7 +393,7 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                         <h6 class="nav-title mb-0 me-3">🛍️ Danh sách sản phẩm</h6>
                         <?php if (!empty($_SESSION["thongBao"])): ?>
                             <div class="position-relative" style="max-width: 350px;">
-                                <div class="alert alert-danger alert-dismissible fade show mb-0 py-1" role="alert" style="font-size: 0.95rem;">
+                                <div class="alert alert-success alert-dismissible fade show mb-0 py-1" role="alert" style="font-size: 0.95rem;">
                                     <?= $_SESSION["thongBao"] ?>
                                     <button type="button"
                                         class="btn-close"

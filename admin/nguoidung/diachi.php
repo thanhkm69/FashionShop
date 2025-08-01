@@ -8,7 +8,7 @@ if (!isset($_SESSION["nguoiDung"]) || $_SESSION["nguoiDung"]["phanQuyen"] != "Ad
     $id = $_SESSION["nguoiDung"]["id"];
     $nguoiDung = $db->getOne("SELECT * FROM nguoidung WHERE id = ?", [$id]);
 }
-
+$dir = "../../uploads/";
 $dstinh = $db->getAll("SELECT * FROM tinh");
 
 $id = $_GET["id"];
@@ -154,7 +154,7 @@ $dsDiaChi = $db->getAll("
                                 <select name="tinh" id="tinh" class="form-select" onchange="this.form.submit()">
                                     <option value="">Chọn Tỉnh</option>
                                     <?php foreach ($dstinh as $tinh) { ?>
-                                        <option <?= isset($_POST["tinh"]) && $idTinh == $tinh["id"] ? "selected" : "" ?> value="<?= $tinh["id"] ?>">
+                                        <option <?= isset($_POST["tinh"]) && $idTinh == $tinh["maGHN"] ? "selected" : "" ?> value="<?= $tinh["maGHN"] ?>">
                                             <?= $tinh["ten"] ?>
                                         </option>
                                     <?php } ?>
@@ -170,7 +170,7 @@ $dsDiaChi = $db->getAll("
                                     <option value="">Chọn Quận / Huyện</option>
                                     <?php if (isset($_POST["tinh"])) {
                                         foreach ($dshuyen as $huyen) { ?>
-                                            <option <?= isset($_POST["huyen"]) && $idHuyen == $huyen["id"] ? "selected" : "" ?> value="<?= $huyen["id"] ?>">
+                                            <option <?= isset($_POST["huyen"]) && $idHuyen == $huyen["maGHN"] ? "selected" : "" ?> value="<?= $huyen["maGHN"] ?>">
                                                 <?= $huyen["ten"] ?>
                                             </option>
                                     <?php }
@@ -187,7 +187,7 @@ $dsDiaChi = $db->getAll("
                                     <option value="">Chọn Xã</option>
                                     <?php if (isset($_POST["huyen"])) {
                                         foreach ($dsxa as $xa) { ?>
-                                            <option <?= isset($_POST["xa"]) && $idXa == $xa["id"] ? "selected" : "" ?> value="<?= $xa["id"] ?>">
+                                            <option <?= isset($_POST["xa"]) && $idXa == $xa["maGHN"] ? "selected" : "" ?> value="<?= $xa["maGHN"] ?>">
                                                 <?= $xa["ten"] ?>
                                             </option>
                                     <?php }

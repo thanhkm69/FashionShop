@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Chuyển hướng
-        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
+        header("location: donhang.php?trangThai=" . (isset($_GET["trangThai"]) ? $_GET["trangThai"] : ""));
         exit;
     }
 
@@ -81,18 +81,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $db->execute("UPDATE hoadon SET phiShip = ? , tongTien = ?, idDiaChi = ? WHERE id = ?", [$phiShipMoi, $tongTien, $_POST["dc"], $idHoaDon]);
         }
         // Chuyển hướng
-        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
+        header("location: donhang.php?trangThai=" . (isset($_GET["trangThai"]) ? $_GET["trangThai"] : ""));
         exit;
     }
     if (isset($_POST["mualai"])) {
         $idHoaDon = $_POST["id"];
-        $hdct = $db->getAll("SELECT * FROM chitiethoadon WHERE idHoaDon = ?", [$idHoaDon]);
+        $hdct = $db->getAll("SELECT a.*, b.size ,b.soLuong as soLuongTK,c.mau,d.ten FROM chitiethoadon a 
+                         JOIN bienthesize b ON a.idSize = b.id 
+                         JOIN mau c ON b.idMau = c.id 
+                         JOIN sanpham d ON c.idSanPham = d.id
+                         WHERE idHoaDon = ?", [$idHoaDon]);
+
+
+        $loi = [];
+
+        // Kiểm tra tồn kho trước
         foreach ($hdct as $ct) {
-            $db->execute("INSERT INTO giohang (idSize,idNguoiDung,gia,soLuong) VALUES (?,?,?,?)", [$ct["idSize"], $id, $ct["gia"], $ct["soLuong"]]);
-            header("location: dathang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
+            if (intval($ct["soLuong"]) > intval($ct["soLuongTK"])) {
+                $loi[] = "Sản phẩm <strong>{$ct["ten"]}</strong> - Màu <strong>{$ct["mau"]}</strong> - Size <strong>{$ct["size"]}</strong> không đủ hàng (còn {$ct["soLuongTK"]}, cần {$ct["soLuong"]})";
+            }
+        }
+
+        // echo "<pre>";
+        // var_dump($loi);
+        // exit;
+        // echo "</pre>";
+
+        if (!empty($loi)) {
+            $_SESSION["loiMuaLai"] = $loi;
+            header("Location: {$_SERVER["HTTP_REFERER"]}");
             exit;
         }
+
+        // Nếu đủ hàng thì thêm vào giỏ
+        foreach ($hdct as $ct) {
+            $db->execute(
+                "INSERT INTO giohang (idSize,idNguoiDung,gia,soLuong) VALUES (?,?,?,?)",
+                [$ct["idSize"], $id, $ct["gia"], $ct["soLuong"]]
+            );
+        }
+
+        $trangThai = isset($_GET["trangThai"]) ? $_GET["trangThai"] : "";
+        header("location: dathang.php?trangThai=" . urlencode($trangThai));
+        exit;
     }
+
 
     if (isset($_POST["hoanthanh"])) {
         $idHoaDon = $_POST["id"];
@@ -104,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // (Tùy chọn) Có thể thực hiện các hành động khác nếu cần
 
         // Chuyển hướng lại trang đơn hàng
-        header("location: donhang.php?trangThai=<?= {$_GET["trangThai"]} ?>");
+        header("location: donhang.php?trangThai=" . (isset($_GET["trangThai"]) ? $_GET["trangThai"] : ""));
         exit;
     }
 }
@@ -309,6 +342,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             $i = 1;
                                             foreach ($chiTiet as $ct): ?>
                                                 <tr>
+                                                    <?php if (!empty($_SESSION["loiMuaLai"])): ?>
+                                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                            <?php foreach ($_SESSION["loiMuaLai"] as $loi): ?>
+                                                                <div>- <?= $loi ?></div>
+                                                            <?php endforeach; ?>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                                                        </div>
+                                                        <?php unset($_SESSION["loiMuaLai"]); ?>
+                                                    <?php endif; ?>
                                                     <td><?= $i++ ?></td>
                                                     <td><img src="../uploads/<?= $ct["hinh"] ?>" alt="" width="60"></td>
                                                     <td><?= $ct["tenSP"] ?></td>

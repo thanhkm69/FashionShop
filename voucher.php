@@ -119,6 +119,11 @@ $voucher = $db->getAll($sql, $bind);
                     <h6 class="nav-title border-bottom pb-2 mb-3">🔍 Lọc</h6>
                     <!-- Giá -->
                     <form action="" method="get" class="d-flex flex-column gap-2">
+                        <!-- Giữ lại từ khóa và sort nếu có -->
+                        <input type="hidden" name="keyword" value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">
+                        <input type="hidden" name="sort" value="<?= htmlspecialchars($_GET['sort'] ?? '') ?>">
+
+                        <!-- Các radio -->
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="kieu" id="kieu_all" value="" onchange="this.form.submit()" <?= $kieu === '' ? 'checked' : '' ?>>
                             <label class="form-check-label <?= $kieu === '' ? 'text-danger fw-semibold' : '' ?>" for="kieu_all">
@@ -137,12 +142,14 @@ $voucher = $db->getAll($sql, $bind);
                                 Giảm theo phần trăm
                             </label>
                         </div>
+
                         <div class="d-flex justify-content-between mt-3">
                             <a href="voucher.php" class="btn btn-outline-secondary btn-sm">
                                 <i class="bi bi-x-circle me-1"></i> Xóa lọc
                             </a>
                         </div>
                     </form>
+
 
                 </div>
             </aside>
@@ -154,7 +161,7 @@ $voucher = $db->getAll($sql, $bind);
                         <h6 class="nav-title mb-0 me-3">🛍️ Danh sách voucher</h6>
                         <?php if (!empty($_SESSION["thongBao"])): ?>
                             <div class="position-relative" style="max-width: 350px;">
-                                <div class="alert alert-danger alert-dismissible fade show mb-0 py-1" role="alert" style="font-size: 0.95rem;">
+                                <div class="alert alert-success alert-dismissible fade show mb-0 py-1" role="alert" style="font-size: 0.95rem;">
                                     <?= $_SESSION["thongBao"] ?>
                                     <button type="button"
                                         class="btn-close"
@@ -173,16 +180,15 @@ $voucher = $db->getAll($sql, $bind);
                 <div class="d-flex justify-content-between mt-4 flex-wrap border-top pt-3">
                     <!-- Form sắp xếp -->
                     <form action="" method="get" class="d-flex align-items-center gap-2">
+                        <!-- Giữ lại kiểu lọc nếu có -->
+                        <input type="hidden" name="kieu" value="<?= htmlspecialchars($_GET['kieu'] ?? '') ?>">
+
                         <i class="bi bi-sort-alpha-down me-2"></i>
                         <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="">Sắp xếp</option>
                             <option value="price_asc" <?= ($_GET['sort'] ?? '') == 'price_asc' ? 'selected' : '' ?>>Giá tăng dần</option>
                             <option value="price_desc" <?= ($_GET['sort'] ?? '') == 'price_desc' ? 'selected' : '' ?>>Giá giảm dần</option>
                         </select>
-                    </form>
-
-                    <!-- Form tìm kiếm theo mã/tên -->
-                    <form action="" method="get" class="d-flex align-items-center gap-2">
                         <label for="keyword">🔍</label>
                         <input type="text" name="keyword" class="form-control form-control-sm"
                             placeholder="Nhập mã voucher..." value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">

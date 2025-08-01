@@ -8,7 +8,7 @@ if (!isset($_SESSION["nguoiDung"]) || $_SESSION["nguoiDung"]["phanQuyen"] != "Ad
     $id = $_SESSION["nguoiDung"]["id"];
     $nguoiDung = $db->getOne("SELECT * FROM nguoidung WHERE id = ?", [$id]);
 }
-
+$dir = "../../uploads/";
 $categoryName = "";
 $imgName = "";
 

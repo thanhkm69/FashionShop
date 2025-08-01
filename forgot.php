@@ -109,9 +109,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         .toggle-password {
             position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
             cursor: pointer;
             color: #aaa;
         }
@@ -120,7 +117,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #333;
         }
 
+        .input-group .form-control {
+            height: 40px;
+        }
 
+        .input-group .btn {
+            height: 40px;
+            /* Bằng với input */
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ced4da;
+            border-left: none;
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+
+        .input-group .btn i {
+            font-size: 16px;
+            line-height: 1;
+        }
     </style>
 </head>
 
@@ -203,6 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="invalid-feedback d-block"><?= $err["confirm"] ?></div>
                         <?php endif; ?>
                     </div>
+
 
                     <button type="submit" name="submit_password" class="btn btn-warning w-100">
                         <i class="fa-solid fa-rotate"></i> Đặt lại mật khẩu

@@ -8,7 +8,7 @@ if (!isset($_SESSION["nguoiDung"]) || $_SESSION["nguoiDung"]["phanQuyen"] != "Ad
     $id = $_SESSION["nguoiDung"]["id"];
     $nguoiDung = $db->getOne("SELECT * FROM nguoidung WHERE id = ?", [$id]);
 }
-
+$dir = "../../uploads/";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
 
     $password = test_input($_POST["password"] ?? "");
@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                         </div>
                         <!-- Đoạn bên trong <form> -->
                         <form action="" method="post" enctype="multipart/form-data" class="card p-2 shadow-sm">
-    
+
                             <!-- Hình -->
                             <div class="mb-2">
                                 <label>Hình</label>
@@ -123,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                                 </div>
                                 <div class="invalid-feedback d-block"><?php echo $err["img"] ?? "" ?></div>
                             </div>
-    
+
                             <!-- Tên -->
                             <div class="mb-2">
                                 <label>Tên</label>
@@ -134,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                                 </div>
                                 <div class="invalid-feedback d-block"><?php echo $err["tên"] ?? "" ?></div>
                             </div>
-    
+
                             <!-- Email -->
                             <div class="mb-2">
                                 <label>Email</label>
@@ -145,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                                 </div>
                                 <div class="invalid-feedback d-block"><?php echo $err["email"] ?? "" ?></div>
                             </div>
-    
+
                             <!-- Số điện thoại -->
                             <div class="mb-2">
                                 <label>Điện thoại</label>
@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                                 </div>
                                 <div class="invalid-feedback d-block"><?php echo $err["soDienThoai"] ?? "" ?></div>
                             </div>
-    
+
                             <!-- Mật khẩu -->
                             <div class="mb-2">
                                 <label>Mật khẩu</label>
@@ -173,13 +173,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["create"])) {
                                     <div class="invalid-feedback d-block"><?php echo $err["matKhau"]; ?></div>
                                 <?php endif; ?>
                             </div>
-    
+
                             <!-- Nút -->
                             <div class="d-flex justify-content-between mt-3">
                                 <a href="nguoidung.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left-circle me-1"></i> Quay lại
                                 </a>
-                                 <button type="submit" name="create" class="btn btn-success btn-sm">
+                                <button type="submit" name="create" class="btn btn-success btn-sm">
                                     <i class="bi bi-plus-circle"></i> Thêm
                                 </button>
                             </div>
