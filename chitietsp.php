@@ -12,6 +12,10 @@ $idNguoiDung = $_SESSION["nguoiDung"]["id"] ?? "";
 
 //Lấy bình luận sản phẩm
 $bl = $db->getAll("SELECT a.*,b.mau,c.size,d.noiDung,d.sao,d.ngayTao,d.trangThai,d.idNguoiDung,e.hinh,e.ten as tenND FROM sanpham a JOIN mau b ON a.id = b.idSanPham JOIN bienthesize c ON b.id = c.idMau JOIN binhluansp d ON c.id = d.idSize JOIN nguoidung e ON d.idNguoiDung = e.id WHERE a.id = ? AND (d.trangThai = 1 OR d.idNguoiDung = ?)", [$id, $idNguoiDung]);
+$totalBL = count($bl);
+$totalSao = array_sum(array_column($bl, 'sao'));
+$tbs = $totalBL > 0 ? $totalSao / $totalBL : 0;
+
 
 //Lấy mô tả size
 
@@ -131,7 +135,22 @@ function timeAgo($datetime)
         return 'Vừa xong';
     }
 }
-
+// Hàm hiển thị sao có hỗ trợ nửa sao
+function renderStarRating($rating, $maxStars = 5)
+{
+    $starsHtml = '';
+    for ($i = 1; $i <= $maxStars; $i++) {
+        if ($rating >= $i) {
+            $starsHtml .= '<i class="bi bi-star-fill text-warning"></i>';
+        } elseif ($rating > ($i - 1)) {
+            $starsHtml .= '<i class="bi bi-star-half text-warning"></i>';
+        } else {
+            $starsHtml .= '<i class="bi bi-star text-warning"></i>';
+        }
+    }
+    $starsHtml .= ' <span class="ms-1 text-muted small">' . number_format($rating, 1) . '/5.0</span>';
+    return $starsHtml;
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -463,87 +482,93 @@ function timeAgo($datetime)
         <!-- Mô tả chi tiết -->
         <section id="huongDanSize" class="review-list mb-5">
             <h5 class="mb-3">
-                <i class="bi bi-file-text me-1"></i> Mô tả chi tiết
-                <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
+                <i class="bi bi-file-text me-1 text-primary"></i> Mô tả chi tiết
             </h5>
 
-            <!-- Nội dung mô tả -->
+            <!-- Nội dung mô tả sản phẩm -->
             <div class="review-item mb-4">
                 <p><?= nl2br(htmlspecialchars($sp["moTa"])) ?></p>
             </div>
 
-            <!-- Bảng mô tả size nếu có -->
+            <!-- Bảng mô tả size -->
             <?php if (!empty($moTaSize)) { ?>
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle text-center">
-                        <thead class="table-primary">
-                            <tr>
-                                <th><i class="bi bi-aspect-ratio me-1"></i>Size</th>
-                                <th><i class="bi bi-rulers me-1"></i>Chi tiết kích thước</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($moTaSize as $row) { ?>
-                                <tr>
-                                    <td class="fw-bold"><?= htmlspecialchars($row["size"]) ?></td>
-                                    <td><?= nl2br(htmlspecialchars($row["moTaSize"])) ?></td>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white fw-bold d-flex align-items-center">
+                        <i class="bi bi-rulers me-2"></i> Bảng hướng dẫn chọn size
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center mb-0">
+                            <thead class="table-light">
+                                <tr class="fw-semibold text-secondary">
+                                    <th><i class="bi bi-aspect-ratio me-1"></i>Size</th>
+                                    <th class="text-start">
+                                        <i class="bi bi-arrows-angle-expand me-1"></i>Chi tiết kích thước
+                                    </th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($moTaSize as $row) { ?>
+                                    <tr>
+                                        <td class="fw-bold"><?= htmlspecialchars($row["size"]) ?></td>
+                                        <td class="text-start"><?= nl2br(htmlspecialchars($row["moTaSize"])) ?></td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             <?php } ?>
         </section>
 
-
-        <!-- Đánh giá -->
+        <!-- Hiển thị danh sách đánh giá -->
         <section class="review-list mb-5">
-            <h5 class="mb-3">
+            <h5 class="mb-2">
                 <i class="bi bi-star-fill me-2 text-warning"></i> Đánh giá của khách hàng
-                <span id="review-summary" class="fs-6 fw-normal ms-2 text-muted"></span>
             </h5>
 
-            <?php foreach ($bl as $b) { ?>
-                <div class="review-item d-flex mb-4">
-                    <!-- Avatar -->
-                    <div class="flex-shrink-0 me-3">
-                        <img src="<?= $dir . $b['hinh'] ?>" class="rounded-circle" alt="Avatar người dùng" width="60" height="60" style="object-fit: cover;">
-                    </div>
+            <?php if ($totalBL > 0): ?>
+                <!-- Hiển thị tóm tắt sao và số lượng -->
+                <div class="mb-3 ms-4">
+                    <?= renderStarRating($tbs) ?> (<?= $totalBL ?> bình luận)
+                </div>
 
-                    <!-- Nội dung -->
-                    <div class="flex-grow-1">
-                        <!-- Dòng đầu: tên + sao + ngày -->
-                        <div class="d-flex align-items-center justify-content-between flex-wrap">
-                            <div class="fw-bold"><?= htmlspecialchars($b["tenND"]) ?></div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="review-rating text-warning">
-                                    <?php
-                                    $sao = (int)$b["sao"];
-                                    for ($i = 1; $i <= 5; $i++) {
-                                        echo $i <= $sao
-                                            ? '<i class="bi bi-star-fill"></i>'
-                                            : '<i class="bi bi-star"></i>';
-                                    }
-                                    ?>
-                                </span>
-                                <span class="review-date text-muted small"><?= timeAgo($b["ngayTao"]) ?></span>
+                <!-- Danh sách bình luận -->
+                <section class="review-list mb-5">
+                    <?php foreach ($bl as $b): ?>
+                        <div class="review-item d-flex mb-4">
+                            <!-- Avatar -->
+                            <div class="flex-shrink-0 me-3">
+                                <img src="<?= $dir . $b['hinh'] ?>" class="rounded-circle" alt="Avatar người dùng"
+                                    width="60" height="60" style="object-fit: cover;">
+                            </div>
+
+                            <!-- Nội dung -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                    <div class="fw-bold"><?= htmlspecialchars($b["tenND"]) ?></div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="review-rating text-warning">
+                                            <?= renderStarRating((float)$b["sao"]) ?>
+                                        </span>
+                                        <span class="review-date text-muted small"><?= timeAgo($b["ngayTao"]) ?></span>
+                                    </div>
+                                </div>
+
+                                <div class="review-product-info small text-secondary mt-1 mb-2">
+                                    Sản phẩm: <strong><?= htmlspecialchars($b["ten"]) ?></strong> |
+                                    Màu: <strong><?= htmlspecialchars($b["mau"]) ?></strong> |
+                                    Size: <strong><?= htmlspecialchars($b["size"]) ?></strong>
+                                </div>
+
+                                <div class="review-comment"><?= nl2br(htmlspecialchars($b["noiDung"])) ?></div>
                             </div>
                         </div>
-
-                        <!-- Dòng thứ hai: thông tin sản phẩm -->
-                        <div class="review-product-info small text-secondary mt-1 mb-2">
-                            Sản phẩm: <strong><?= htmlspecialchars($b["ten"]) ?></strong> |
-                            Màu: <strong><?= htmlspecialchars($b["mau"]) ?></strong> |
-                            Size: <strong><?= htmlspecialchars($b["size"]) ?></strong>
-                        </div>
-
-                        <!-- Nội dung bình luận -->
-                        <div class="review-comment"><?= nl2br(htmlspecialchars($b["noiDung"])) ?></div>
-                    </div>
-                </div>
-            <?php } ?>
-
-
+                    <?php endforeach; ?>
+                </section>
+            <?php else: ?>
+                <!-- Không có bình luận -->
+                <div class="text-muted ms-4 mb-4 fst-italic">Chưa có đánh giá nào cho sản phẩm này.</div>
+            <?php endif; ?>
         </section>
 
         <!-- Sản phẩm liên quan -->

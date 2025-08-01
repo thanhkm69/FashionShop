@@ -240,9 +240,8 @@ if (isset($_SESSION["nguoiDung"])) {
               <ul class="dropdown-menu dropdown-menu-end">
                 <?php if ($nguoiDung["phanQuyen"] == "Admin") { ?>
                   <li><a class="dropdown-item" href="<?= $dirMenu ?>admin/dashboard/dashboard.php"><i class="fa-solid fa-gear me-2"></i>Quản lý</a></li>
-                <?php } else { ?>
-                  <li><a class="dropdown-item" href="<?= $dirMenu ?>user/thongtin.php"><i class="fa-regular fa-user me-2"></i>Thông tin tài khoản</a></li>
                 <?php } ?>
+                  <li><a class="dropdown-item" href="<?= $dirMenu ?>user/thongtin.php"><i class="fa-regular fa-user me-2"></i>Thông tin tài khoản</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
