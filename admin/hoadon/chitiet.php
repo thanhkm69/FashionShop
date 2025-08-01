@@ -61,7 +61,7 @@ $chiTietHD = $db->getAll("SELECT a.*,c.size, d.hinh, d.mau, e.ten AS tenSanPham 
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item px-0">
                                     <i class="bi bi-hash text-secondary me-2"></i>
-                                    <strong>Mã hóa đơn:</strong> <?= $tt["id"] ?>
+                                    <strong>Mã hóa đơn:</strong> <?= $tt["ma"] ?>
                                 </li>
                                 <li class="list-group-item px-0">
                                     <i class="bi bi-person text-primary me-2"></i>
