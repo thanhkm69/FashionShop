@@ -60,7 +60,7 @@ if (isset($_GET["search"])) {
 
 $orderby = "ORDER BY thoiGianMua DESC";
 
-if (isset($_GET["orderbyGia"])) {
+if (isset($_GET["orderbyGia"]) && $_GET["orderbyGia"] != "") {
     $order = $_GET["orderbyGia"];
     if ($order) {
         $orderby = "ORDER BY tongTien DESC";
