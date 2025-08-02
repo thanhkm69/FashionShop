@@ -115,7 +115,7 @@ $voucher = $db->getAll($sql, $bind);
             <!-- Sidebar category -->
             <aside class="col-lg-3 mb-4">
                 <div class="bg-white p-3 shadow-sm rounded">
-                    <h6 class="nav-title border-bottom pb-2 mb-3"> <i class="bi bi-ticket-perforated-fill me-2"></i> Danh sách Voucher</h6>
+                    <h5 class="nav-title border-bottom pb-2 mb-3"> <i class="bi bi-ticket-perforated-fill me-2"></i> Danh sách Voucher</h5>
                     <h6 class="nav-title border-bottom pb-2 mb-3">🔍 Lọc</h6>
                     <!-- Giá -->
                     <form action="" method="get" class="d-flex flex-column gap-2">
@@ -158,7 +158,7 @@ $voucher = $db->getAll($sql, $bind);
             <section class="col-lg-9">
                 <div class="bg-white p-3 shadow-sm rounded">
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
-                        <h6 class="nav-title mb-0 me-3">🛍️ Danh sách voucher</h6>
+                        <h5 class="nav-title mb-0 me-3">🛍️ Danh sách voucher</h5>
                         <?php if (!empty($_SESSION["thongBao"])): ?>
                             <div class="position-relative" style="max-width: 350px;">
                                 <div class="alert alert-success alert-dismissible fade show mb-0 py-1" role="alert" style="font-size: 0.95rem;">

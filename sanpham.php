@@ -328,7 +328,7 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
             <!-- Sidebar category -->
             <aside class="col-lg-3 mb-4">
                 <div class="bg-white p-3 shadow-sm rounded">
-                    <h6 class="nav-title border-bottom pb-2 mb-3">📂 Danh mục sản phẩm</h6>
+                    <h5 class="nav-title border-bottom pb-2 mb-3">📂 Danh mục sản phẩm</h5>
                     <ul class="list-group mb-4">
                         <li class="list-group-item">
                             <a href="sanpham.php" class="nav-link <?= !isset($_GET["id"]) ? "text-danger" : "" ?>">Tất cả</a>
@@ -348,7 +348,7 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
 
                     <!-- Bộ lọc -->
                     <form action="" method="get">
-                        <h6 class="nav-title border-bottom pb-2 mb-3">🔍 Lọc theo giá</h6>
+                        <h5 class="nav-title border-bottom pb-2 mb-3">🔍 Lọc theo giá</h5>
 
                         <!-- Giá -->
                         <form action="" method="get" class="d-flex flex-column gap-2">
@@ -518,9 +518,6 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
 
                                     </div>
                                 </div>
-
-
-
                                 <!-- Modal chọn màu & size -->
                                 <div class="modal fade" id="cartOptionModal<?= $idSP ?>" tabindex="-1" aria-labelledby="cartOptionModalLabel<?= $idSP ?>" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -755,7 +752,6 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                                 </script>
 
                             </div>
-
                     <?php }
                     } else {
                         echo "<div class='col-12 text-muted'>Không tìm thấy sản phẩm...</div>";
