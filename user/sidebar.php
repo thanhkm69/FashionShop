@@ -71,6 +71,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         letter-spacing: 0.5px;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
     }
+
+    .sidebar {
+        flex-shrink: 0;
+        /* KHÔNG bị co lại */
+    }
 </style>
 
 

@@ -174,7 +174,7 @@ function getTrangThaiInfo($trangThai)
             <main class="p-4 flex-grow-1">
                 <div class="action-bar d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-box-seam fs-4"></i>
+                        <i class="bi bi-clipboard-check fs-4"></i>
                         <span class="fs-5 fw-semibold align-text-bottom">Hóa đơn</span>
                     </div>
                 </div>

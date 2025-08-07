@@ -71,6 +71,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         letter-spacing: 0.5px;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
     }
+
+    .sidebar {
+        flex-shrink: 0;
+        /* KHÔNG bị co lại */
+    }
 </style>
 
 
@@ -127,11 +132,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <i class="bi bi-bar-chart-line-fill me-2"></i> Thống kê
             </a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link text-dark <?php echo ($currentPage == 'caidat.php') ? 'active' : ''; ?>" href="caidat.php">
                 <i class="bi bi-gear-fill me-2"></i> Cài đặt
             </a>
-        </li>
+        </li> -->
         <li class="nav-item">
             <a class="nav-link" href="../../index.php">
                 <i class="bi bi-house-door-fill me-2"></i> Trang chủ

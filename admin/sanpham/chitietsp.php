@@ -4,7 +4,7 @@ require_once "../../core/db_utils.php";
 if (!isset($_SESSION["nguoiDung"]) || $_SESSION["nguoiDung"]["phanQuyen"] != "Admin") {
     header("location: ../../index.php");
     exit;
-}else {
+} else {
     $id = $_SESSION["nguoiDung"]["id"];
     $nguoiDung = $db->getOne("SELECT * FROM nguoidung WHERE id = ?", [$id]);
 }
@@ -17,7 +17,9 @@ $sp = $db->getOne("SELECT a.*, b.ten AS tenDM FROM sanpham a
                         JOIN danhmuc b ON a.idDanhMuc = b.id 
                         WHERE a.id = ?", [$idSanPham]);
 
-$bt = $db->getAll("SELECT a.*, b.size, b.soLuong, b.moTaSize 
+$btm = $db->getAll("SELECT * FROM mau WHERE idSanPham = ?", [$idSanPham]);
+
+$bts = $db->getAll("SELECT b.*
                    FROM mau a 
                    JOIN bienthesize b ON a.id = b.idMau 
                    WHERE idSanPham = ?
@@ -37,83 +39,6 @@ $bt = $db->getAll("SELECT a.*, b.size, b.soLuong, b.moTaSize
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <style>
-        body {
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            background-color: #f1f4ff;
-            border-right: 1px solid #e0e3f1;
-            width: 260px;
-        }
-
-        .sidebar .nav-link {
-            padding: 12px 18px;
-            font-weight: 500;
-            border-radius: 6px;
-            color: #2c2e33;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            color: #dc3545 !important;
-            background-color: rgba(0, 0, 0, 0.03);
-            transform: translateX(4px);
-        }
-
-        .product-image {
-            width: 100%;
-            max-height: 220px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .list-group-item {
-            background-color: #f8f9fa;
-            border-left: 4px solid #0d6efd;
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle !important;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 2rem;
-            background-color: #f9fafb;
-        }
-
-        .sidebar .logo {
-            width: 80%;
-            margin: 0 auto 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: static;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .product-image {
-                max-height: 160px;
-            }
-        }
-    </style>
 </head>
 
 <body class="d-flex flex-column" style="min-height: 100vh;">
@@ -122,94 +47,118 @@ $bt = $db->getAll("SELECT a.*, b.size, b.soLuong, b.moTaSize
         <div class="flex-grow-1 d-flex flex-column">
             <?php include '../include/header.php'; ?>
             <main class="p-4 flex-grow-1">
-                <div class="action-bar d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex align-items-center gap-2 mb-3">
+                <!-- Action bar -->
+                <div class="action-bar d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-box-seam fs-4"></i>
                         <span class="fs-5 fw-semibold align-text-bottom">Chi tiết sản phẩm</span>
                     </div>
+                    <a href="sanpham.php" class="btn btn-outline-secondary d-flex align-items-center">
+                        <i class="bi bi-arrow-left me-2"></i> Quay lại
+                    </a>
                 </div>
 
-                <div class="card p-3">
-                    <div class="row g-4">
-                        <!-- Cột hình ảnh -->
-                        <div class="col-md-3">
-                            <img src="<?= $dir . $sp["hinh"] ?>" alt="<?= htmlspecialchars($sp["ten"]) ?>" class="product-image w-100">
+                <!-- Card chứa thông tin sản phẩm -->
+                <div class="card shadow-sm">
+                    <div class="row g-0">
+                        <!-- Hình ảnh sản phẩm -->
+                        <div class="col-md-4 text-center border-end p-4">
+                            <img src="<?= $dir . htmlspecialchars($sp['hinh']) ?>" alt="Hình sản phẩm" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
                         </div>
 
-                        <!-- Cột thông tin sản phẩm -->
-                        <div class="col-md-9">
-                            <h5 class="card-title"><?= htmlspecialchars($sp["ten"]) ?></h5>
-                            <ul class="list-group list-group-flush mb-3">
-                                <li class="list-group-item">
-                                    <strong>Danh mục:</strong> <?= htmlspecialchars($sp["tenDM"]); ?>
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Giá gốc:</strong> <?= number_format($sp["giaGoc"]); ?>₫
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Giá khuyến mãi:</strong> <?= number_format($sp["giaKhuyenMai"]); ?>₫
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Mô tả:</strong><br><?= nl2br(htmlspecialchars($sp["moTa"])) ?>
-                                </li>
-                            </ul>
-                        </div>
+                        <!-- Thông tin chi tiết -->
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <h4 class="card-title fw-bold mb-3"><?= htmlspecialchars($sp['ten']) ?></h4>
 
-                        <!-- Hàng mới: Biến thể sản phẩm -->
-                        <div class="col-12">
-                            <?php if (!empty($bt)): ?>
-                                <div class="mt-3">
-                                    <h6 class="text-primary fw-bold">Biến thể (Màu - Size):</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-sm mt-2">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Hình</th>
-                                                    <th>Màu</th>
-                                                    <th>Mô tả màu</th>
-                                                    <th>Size</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Mô tả size</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($bt as $item): ?>
-                                                    <tr>
-                                                        <td style="width: 60px;">
-                                                            <img src="<?= $dir . htmlspecialchars($item["hinh"]) ?>" class="img-fluid" style="height: 50px;">
-                                                        </td>
-                                                        <td><?= htmlspecialchars($item["mau"]) ?></td>
-                                                        <td><?= htmlspecialchars($item["moTaMau"]) ?></td>
-                                                        <td><?= htmlspecialchars($item["size"]) ?></td>
-                                                        <td><span class="badge bg-success"><?= $item["soLuong"] ?></span></td>
-                                                        <td><?= htmlspecialchars($item["moTaSize"]) ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="mb-2">
+                                    <i class="bi bi-tag-fill text-primary me-1"></i>
+                                    <strong>Danh mục:</strong> <?= htmlspecialchars($sp['tenDM']) ?>
                                 </div>
-                            <?php else: ?>
-                                <div class="text-muted mt-3">
-                                    <i class="bi bi-info-circle me-1"></i>Không có biến thể nào.
-                                </div>
-                            <?php endif; ?>
-                        </div>
 
-                        <!-- Nút quay lại -->
-                        <div class="col-12 mt-4">
-                            <a href="sanpham.php" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left-circle me-1"></i> Quay lại
-                            </a>
+                                <div class="mb-2">
+                                    <i class="bi bi-currency-dollar text-success me-1"></i>
+                                    <strong>Giá gốc:</strong> <?= number_format($sp['giaGoc']) ?>₫
+                                </div>
+
+                                <div class="mb-2">
+                                    <i class="bi bi-cash-coin text-danger me-1"></i>
+                                    <strong>Giá khuyến mãi:</strong> <?= number_format($sp['giaKhuyenMai']) ?>₫
+                                </div>
+
+                                <div class="mb-3">
+                                    <i class="bi bi-text-left me-1 text-info"></i>
+                                    <strong>Mô tả:</strong>
+                                    <textarea class="form-control bg-light border rounded mt-1"
+                                        rows="5" readonly
+                                        style="max-height: 150px; overflow-y: auto; resize: none;"><?=
+                                                                                                    preg_replace('/^\s*[\r\n]+/', '', trim($sp['moTa'])) ?></textarea>
+                                </div>
+
+                                <div class="mb-2">
+                                    <i class="bi bi-eye<?= $sp['trangThai'] == 0 ? '-slash' : '' ?> text-<?= $sp['trangThai'] == 1 ? 'success' : 'secondary' ?> me-1"></i>
+                                    <strong>Trạng thái:</strong>
+                                    <?= $sp['trangThai'] == 1 ? 'Hiển thị' : 'Ẩn' ?>
+                                </div>
+
+                                <div>
+                                    <i class="bi bi-calendar-event me-1 text-warning"></i>
+                                    <strong>Ngày tạo:</strong>
+                                    <?= date('d/m/Y H:i', strtotime($sp['ngayTao'])) ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="container px-0">
+                    <?php foreach ($btm as $mau): ?>
+                        <div class="row border rounded mb-4 shadow-sm bg-white p-3">
+                            <!-- Cột trái: Hình + Màu -->
+                            <div class="col-md-2 text-center d-flex flex-column align-items-center justify-content-center gap-2">
+                                <img src="<?= $dir . htmlspecialchars($mau['hinh']) ?>"
+                                    alt="<?= htmlspecialchars($mau['mau']) ?>"
+                                    class="img-fluid rounded border shadow-sm"
+                                    style="max-height: 100px; object-fit: cover;">
+
+                                <span class="badge bg-dark text-white px-3 py-2 w-100 text-center">
+                                    <i class="bi bi-palette-fill me-1"></i><?= htmlspecialchars($mau['mau']) ?>
+                                </span>
+                            </div>
+
+                            <!-- Cột phải: Bảng size -->
+                            <div class="col-md-10">
+                                <table class="table table-bordered table-hover align-middle mb-0">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th><i class="bi bi-arrows-angle-expand me-1 text-primary"></i>Size</th>
+                                            <th><i class="bi bi-box-seam me-1 text-success"></i>Số lượng</th>
+                                            <th><i class="bi bi-card-text me-1 text-info"></i>Mô tả</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($bts as $size): ?>
+                                            <?php if ($size['idMau'] == $mau['id']): ?>
+                                                <tr>
+                                                    <td class="text-center"><?= htmlspecialchars($size['size']) ?></td>
+                                                    <td class="text-center"><?= htmlspecialchars($size['soLuong']) ?></td>
+                                                    <td><?= htmlspecialchars($size['moTaSize']) ?></td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+
+
             </main>
             <?php include '../include/footer.php'; ?>
         </div>
     </div>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

@@ -51,7 +51,7 @@ $lienhe = $db->getAll("SELECT * FROM lienhe $whereClase $orderby LIMIT $limit OF
 
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý voucher</title>
+    <title>Quản lý liên hệ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -129,8 +129,8 @@ $lienhe = $db->getAll("SELECT * FROM lienhe $whereClase $orderby LIMIT $limit OF
             <main class="p-4 flex-grow-1">
                 <div class="action-bar d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-box-seam fs-4"></i>
-                        <span class="fs-5 fw-semibold align-text-bottom">Hóa đơn</span>
+                      <i class="bi bi-envelope-fill fs-4"></i>
+                        <span class="fs-5 fw-semibold align-text-bottom">Liên hệ</span>
                     </div>
                 </div>
                 <?php if (!empty($_SESSION["thongBao"])): ?>

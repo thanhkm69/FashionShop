@@ -152,7 +152,7 @@ $spfl = $db->getAll("SELECT *, (giaGoc - giaKhuyenMai) / giaGoc * 100 AS phantra
                 <div id="bannerCarousel" class="carousel slide rounded-3 shadow-sm overflow-hidden" data-bs-ride="carousel">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
-                            <a href="">
+                            <a href="sanpham.php?id=6">
                                 <img src="uploads/thoi_trang_khong_don_gian.jpg" class="d-block w-100" alt="Banner 3">
                             </a>
                         </div>
