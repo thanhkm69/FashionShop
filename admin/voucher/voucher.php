@@ -4,7 +4,7 @@ require_once "../../core/db_utils.php";
 if (!isset($_SESSION["nguoiDung"]) || $_SESSION["nguoiDung"]["phanQuyen"] != "Admin") {
     header("location: ../../index.php");
     exit;
-}else {
+} else {
     $id = $_SESSION["nguoiDung"]["id"];
     $nguoiDung = $db->getOne("SELECT * FROM nguoidung WHERE id = ?", [$id]);
 }
@@ -87,7 +87,7 @@ $voucher = $db->getAll("SELECT * FROM voucher $whereClase LIMIT $limit OFFSET $o
             <main class="p-4 flex-grow-1">
                 <div class="action-bar d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-box-seam fs-4"></i>
+                        <i class="bi bi-ticket-perforated fs-4"></i>
                         <span class="fs-5 fw-semibold align-text-bottom">Voucher</span>
                     </div>
                     <a href="./them.php" class="btn btn-success d-flex align-items-center px-4">

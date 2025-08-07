@@ -118,8 +118,6 @@ $dir = "../../uploads/";
 
 
                 </div>
-
-
                 <?php if (!empty($_SESSION["thongBao"])): ?>
                     <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
                         <?= $_SESSION["thongBao"] ?>
@@ -159,9 +157,6 @@ $dir = "../../uploads/";
                          <i class="bi bi-arrow-repeat"></i> Xóa
                     </a>
                 </form>
-
-
-
 
                 <form method="GET" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <!-- Giữ lại các tham số tìm kiếm -->
@@ -229,7 +224,7 @@ $dir = "../../uploads/";
 
                                         <td><?= htmlspecialchars($user["email"]) ?></td>
                                         <td><?= htmlspecialchars($user["ten"]) ?></td>
-                                        <td><?= empty($user["soDienThoai"]) ? "Chưa có" : $user["soDienThoai"] ?></td>
+                                        <td><?= empty($user["soDienThoai"]) ? "" : $user["soDienThoai"] ?></td>
                                        
                                         <td>
                                             <form method="post" class="d-inline">
