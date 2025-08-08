@@ -511,7 +511,7 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#cartOptionModal<?= $sp['id'] ?>"
                                                     title="Mua ngay">
-                                                     <i class="bi bi-bag-check"></i>
+                                                    <i class="bi bi-bag-check"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -587,7 +587,10 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                                                                 <input type="number" class="form-control form-control-sm w-50"
                                                                     name="quantity"
                                                                     id="quantityInput<?= $idSP ?>"
-                                                                    min="1" placeholder="Nhập số lượng">
+                                                                    min="1"
+                                                                    max="<?= $soLuongTonKho ?>"
+                                                                    placeholder="Nhập số lượng">
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -599,7 +602,7 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                                                             <i class="fa-solid fa-cart-plus me-1"></i> Thêm vào giỏ
                                                         </button>
                                                         <a href="#" class="btn btn-danger w-50" id="muaNgayBtn<?= $idSP ?>">
-                                                              <i class="bi bi-bag-check me-1"></i> Mua ngay
+                                                            <i class="bi bi-bag-check me-1"></i> Mua ngay
                                                         </a>
                                                     </div>
                                                 </div>
@@ -726,24 +729,29 @@ $sanPham = $db->getAll($sql . " " . $whereClause . " " . $orderby . " LIMIT $lim
                                         });
                                     });
                                     document.addEventListener("DOMContentLoaded", function() {
-                                        // Thêm sự kiện cho nút Mua ngay
                                         const btnMuaNgay = document.getElementById("muaNgayBtn<?= $idSP ?>");
 
                                         if (btnMuaNgay) {
                                             btnMuaNgay.addEventListener("click", function(e) {
                                                 e.preventDefault();
 
-                                                const idSanPham = <?= $idSP ?>;
                                                 const idMau = document.getElementById("hiddenMau<?= $idSP ?>").value;
                                                 const idSize = document.getElementById("selectedSize<?= $idSP ?>").value;
-                                                const soLuong = document.getElementById("selectedQuantity<?= $idSP ?>").value;
+                                                const qtyInput = document.getElementById("quantityInput<?= $idSP ?>");
+
+                                                const soLuong = parseInt(qtyInput.value, 10);
+                                                const maxQty = parseInt(qtyInput.getAttribute("max"), 10);
 
                                                 if (!idMau || !idSize || !soLuong) {
                                                     alert("Vui lòng chọn màu, size và số lượng trước khi mua!");
                                                     return;
                                                 }
 
-                                                // Redirect sang trang đặt hàng
+                                                if (soLuong > maxQty) {
+                                                    alert(`Số lượng tồn kho không đủ! Chỉ còn ${maxQty} sản phẩm.`);
+                                                    return;
+                                                }
+
                                                 const url = `./user/dathang.php?idSize=${idSize}&soLuong=${soLuong}`;
                                                 window.location.href = url;
                                             });
