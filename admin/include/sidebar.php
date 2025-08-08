@@ -128,7 +128,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark <?php echo ($currentPage == 'thongke.php') ? 'active' : ''; ?>" href="thongke.php">
+            <a class="nav-link text-dark <?php echo ($currentPage == 'thongke.php') ? 'active' : ''; ?>" href="../thongke/thongke.php">
                 <i class="bi bi-bar-chart-line-fill me-2"></i> Thống kê
             </a>
         </li>

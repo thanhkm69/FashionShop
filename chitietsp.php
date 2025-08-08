@@ -672,7 +672,13 @@ function renderStarRating($rating, $maxStars = 5)
                 }
 
                 const idSize = size.value;
-                const soLuong = qty.value;
+                const soLuong = parseInt(qty.value, 10);
+                const maxQty = parseInt(qty.getAttribute('max'), 10);
+
+                if (soLuong > maxQty) {
+                    alert(`Số lượng tồn kho không đủ! Chỉ còn ${maxQty} sản phẩm.`);
+                    return;
+                }
 
                 // Tạo link
                 const link = `./user/dathang.php?idSize=${idSize}&soLuong=${soLuong}`;
